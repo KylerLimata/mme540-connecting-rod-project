@@ -50,7 +50,7 @@ def piston_kinematics(B, S, r, theta_crank):
 
     return {'Vd': Vd, 'theta_rod': theta_rod }
 
-def simulate_connecting_rod(B, S, r, funcs):
+def simulate_connecting_rod(params, funcs, npoints):
     """
     Performs a numerical simulation of the loading on a
     piston connecting rod over the compression and
@@ -65,15 +65,53 @@ def simulate_connecting_rod(B, S, r, funcs):
 
     Parameters
     ----------
-    B : Piston Bore
-    S : Piston Stroke
-    r : Connecting Rod Length
+    params: Piston Parameters
     funcs : A list of functions for the normal and shear stresses at each point
+    npoints : Number of points to simulate at
 
     Returns
     -------
     Dictionary : Computed principle stresses
     """
 
+    ## Unpack parameters
+    B = params['B'] # Bore
+    S = params['S'] # Stroke
+    r = params['r'] # Connecting rod length
+    CR = params['CR'] # Compression Ratio
+    T1 = params['T1'] # Temperature at 1
+    P1 = params['P1'] # Pressure at 1
+    T3 = params['T3'] # Temperature at 3
+    Vc = (1/(CR - 1))*(np.pi*S*B**2)/4 # Clearance volume
+
+    ## Calculate kinematics for compression and power stroke
+    theta_crank_compression = np.linspace(np.pi, 2*np.pi, npoints/2)
+    kinematics_data_compression = piston_kinematics(B, S, r, theta_crank_compression)
+
+    theta_crank_power = np.linspace(2*np.pi, 3*np.pi, npoints/2)
+    kinematics_data_power = piston_kinematics(B, S, r, theta_crank_power)
+
+    ## Compute P, V, and T at all four points
+    k = 1.4 # Specific heat ratio
+    V1 = Vc + (np.pi*S*B**2)/4 # Volume at 1
+    V2 = Vc # Volume at 2
+    V3 = V2 # Volume at 3
+    V4 = V1 # Volume at 4
+    T2 = T1*CR**(k - 1) # Temperature at 2
+    P2 = P1*CR**k
+    P3 = P2*(T3/T2)
+    T4 = T3/(CR**(k - 1)) # Temperature at 4
+    P4 = (P1*T4)/T1 # Pressure at 4
+
+    ## Find pressure for the compression stroke
+    V_compression = kinematics_data_compression['Vd']
+    P_compression = P1*(V1**k)/(V_compression**k) + Vc
+
+    ## Find pressure for the power stroke
+    V_power = kinematics_data_power['Vd'] + Vc
+    P_power = (P3*V3**k)/(V_power**k)
+
+    V = np.concat((V_compression, V_power))
+    P = np.concat((P_compression, P_power))
 
     pass
