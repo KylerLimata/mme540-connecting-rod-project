@@ -111,7 +111,17 @@ def simulate_connecting_rod(params, funcs, npoints):
     V_power = kinematics_data_power['Vd'] + Vc
     P_power = (P3*V3**k)/(V_power**k)
 
+    theta_rod_compression = kinematics_data_compression['theta_rod']
+    theta_rod_power = kinematics_data_power['theta_rod']
+
+    theta_rod = np.concat((theta_rod_compression, theta_rod_power))
     V = np.concat((V_compression, V_power))
     P = np.concat((P_compression, P_power))
+
+    ## Computes load F in x and y
+    A = np.pi/4*B**2 # Piston Head Area
+    F = P*A # Force
+    Fx = F*np.sin(theta_rod)
+    Fy = F*np.cos(theta_rod)
 
     pass
