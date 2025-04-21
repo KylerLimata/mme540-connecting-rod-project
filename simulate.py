@@ -74,6 +74,8 @@ def simulate_connecting_rod(params, funcs, npoints):
     Dictionary : Computed principle stresses
     """
 
+    output = {} # Outpput data
+
     ## Unpack parameters
     B = params['B'] # Bore
     S = params['S'] # Stroke
@@ -102,6 +104,15 @@ def simulate_connecting_rod(params, funcs, npoints):
     P3 = P2*(T3/T2)
     T4 = T3/(CR**(k - 1)) # Temperature at 4
     P4 = (P1*T4)/T1 # Pressure at 4
+    output['V1'] = V1
+    output['V2'] = V2
+    output['V3'] = V3
+    output['V4'] = V4
+    output['P2'] = P2
+    output['P3'] = P3
+    output['P4'] = P4
+    output['T2'] = T2
+    output['T4'] = T4
 
     ## Find pressure for the compression stroke
     V_compression = kinematics_data_compression['Vd']
@@ -114,14 +125,22 @@ def simulate_connecting_rod(params, funcs, npoints):
     theta_rod_compression = kinematics_data_compression['theta_rod']
     theta_rod_power = kinematics_data_power['theta_rod']
 
+    theta_crank = np.concat((theta_crank_compression, theta_crank_power))
     theta_rod = np.concat((theta_rod_compression, theta_rod_power))
     V = np.concat((V_compression, V_power))
     P = np.concat((P_compression, P_power))
+    output['theta_crank'] = theta_crank
+    output['theta_rod'] = theta_rod
+    output['V'] = V
+    output['P'] = P
 
     ## Computes load F in x and y
     A = np.pi/4*B**2 # Piston Head Area
     F = P*A # Force
     Fx = F*np.sin(theta_rod)
     Fy = F*np.cos(theta_rod)
+    output['F'] = F
+    output['Fx'] = Fx
+    output['Fy'] = Fy
 
-    pass
+    return output
