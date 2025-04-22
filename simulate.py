@@ -23,30 +23,9 @@ def piston_kinematics(B, S, r, theta_crank):
     Vd = (r + a - s)*(np.pi/4)*(B**2) # Displacement Volume
 
     ## Find the angle of the connecting rod from the y-axis
-    theta_rod = np.zeros_like(theta_crank)
-
-    for i in range(theta_crank.size):
-        theta_cranki = theta_crank[i]
-        si = s[i]
-        d2 = 0
-        sign = 1
-
-        # Wrap the crank angle
-        while theta_cranki < 0:
-            theta_cranki += np.pi
-        while theta_cranki > np.pi*2:
-            theta_cranki -= np.pi
-        
-        if theta_cranki > np.pi:
-            theta_cranki = 2*np.pi - theta_cranki
-            sign = -1
-        
-        if theta_cranki >= 0 and theta_cranki <= np.pi/2.0:
-            d2 = si - a*np.sin(np.pi/2 - theta_cranki)
-        elif theta_cranki > np.pi/2.0 and theta_cranki <= np.pi:
-            d2 = si + a*np.sin(theta_cranki - np.pi/2)
-
-        theta_rod[i] = sign*(np.arcsin(d2/r) - np.pi/2)
+    inside = (s**2 + r**2 - a**2)/(2*s*r)
+    inside_clipped = np.clip(inside, -1.0, 1.0)
+    theta_rod = np.arccos(inside_clipped)
 
     return {'Vd': Vd, 'theta_rod': theta_rod }
 
@@ -122,7 +101,7 @@ def simulate_connecting_rod(params, funcs, npoints):
     V_power = kinematics_data_power['Vd'] + Vc
     P_power = (P3*V3**k)/(V_power**k)
 
-    theta_rod_compression = kinematics_data_compression['theta_rod']
+    theta_rod_compression = -kinematics_data_compression['theta_rod']
     theta_rod_power = kinematics_data_power['theta_rod']
 
     theta_crank = np.concat((theta_crank_compression, theta_crank_power))
