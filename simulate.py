@@ -67,7 +67,7 @@ def simulate_connecting_rod(params, funcs, npoints):
     ----------
     params: Piston Parameters
     funcs : A list of functions for the normal and shear stresses at each point
-    npoints : Number of points to simulate at
+    npoints : Number of points to simulate at for each stroke
 
     Returns
     -------
@@ -87,10 +87,10 @@ def simulate_connecting_rod(params, funcs, npoints):
     Vc = (1/(CR - 1))*(np.pi*S*B**2)/4 # Clearance volume
 
     ## Calculate kinematics for compression and power stroke
-    theta_crank_compression = np.linspace(np.pi, 2*np.pi, npoints/2)
+    theta_crank_compression = np.linspace(np.pi, 2*np.pi, npoints)
     kinematics_data_compression = piston_kinematics(B, S, r, theta_crank_compression)
 
-    theta_crank_power = np.linspace(2*np.pi, 3*np.pi, npoints/2)
+    theta_crank_power = np.linspace(2*np.pi, 3*np.pi, npoints)
     kinematics_data_power = piston_kinematics(B, S, r, theta_crank_power)
 
     ## Compute P, V, and T at all four points
