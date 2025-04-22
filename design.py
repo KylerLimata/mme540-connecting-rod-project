@@ -18,3 +18,5 @@ funcs = []
 npoints = 200
 
 results = sim.simulate_connecting_rod(params, funcs, npoints)
+
+sim.plot_results(results)

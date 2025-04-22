@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def piston_kinematics(B, S, r, theta_crank):
     """
@@ -53,7 +54,7 @@ def simulate_connecting_rod(params, funcs, npoints):
     Dictionary : Computed principle stresses
     """
 
-    output = {} # Outpput data
+    results = {} # Outpput data
 
     ## Unpack parameters
     B = params['B'] # Bore
@@ -83,15 +84,16 @@ def simulate_connecting_rod(params, funcs, npoints):
     P3 = P2*(T3/T2)
     T4 = T3/(CR**(k - 1)) # Temperature at 4
     P4 = (P1*T4)/T1 # Pressure at 4
-    output['V1'] = V1
-    output['V2'] = V2
-    output['V3'] = V3
-    output['V4'] = V4
-    output['P2'] = P2
-    output['P3'] = P3
-    output['P4'] = P4
-    output['T2'] = T2
-    output['T4'] = T4
+    results['V1'] = V1
+    results['V2'] = V2
+    results['V3'] = V3
+    results['V4'] = V4
+    results['P1'] = P1
+    results['P2'] = P2
+    results['P3'] = P3
+    results['P4'] = P4
+    results['T2'] = T2
+    results['T4'] = T4
 
     ## Find pressure for the compression stroke
     V_compression = kinematics_data_compression['Vd'] + Vc
@@ -108,18 +110,56 @@ def simulate_connecting_rod(params, funcs, npoints):
     theta_rod = np.concat((theta_rod_compression, theta_rod_power))
     V = np.concat((V_compression, V_power))
     P = np.concat((P_compression, P_power))
-    output['theta_crank'] = theta_crank
-    output['theta_rod'] = theta_rod
-    output['V'] = V
-    output['P'] = P
+    results['theta_crank'] = theta_crank
+    results['theta_rod'] = theta_rod
+    results['V'] = V
+    results['P'] = P
 
     ## Computes load F in x and y
     A = np.pi/4*B**2 # Piston Head Area
     F = P*A # Force
     Fx = F*np.sin(theta_rod)
     Fy = F*np.cos(theta_rod)
-    output['F'] = F
-    output['Fx'] = Fx
-    output['Fy'] = Fy
+    results['F'] = F
+    results['Fx'] = Fx
+    results['Fy'] = Fy
 
-    return output
+    return results
+
+def plot_results(results):
+    theta_crank = results['theta_crank']
+
+    ## Plot the PV diagram
+    P = np.append(results['P'], results['P1'])
+    V = np.append(results['V'], results['V1'])
+    fig, ax = plt.subplots()
+
+    ax.plot(V*10**9, P*10**-3)
+    ax.set_xlabel("$Volume (mm^3)$")
+    ax.set_ylabel("Pressure (kPa)")
+    ax.set_title("PV Diagram")
+
+    ## Plot rod angle
+    theta_crank = results['theta_crank']
+    theta_rod = results['theta_rod']
+    fig, ax = plt.subplots()
+
+    ax.plot(theta_crank, theta_rod)
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel(r"$\theta_{rod}$ (rad)")
+    ax.set_title("Rod Angle vs. Crank Angle")
+
+    ## Plot Forces
+    F = results['F']*10**-3
+    Fx = results['Fx']*10**-3
+    Fy = results['Fy']*10**-3
+    fig, ax = plt.subplots()
+
+    ax.plot(theta_crank, F, label = 'F')
+    ax.plot(theta_crank, Fx, label = 'Fx')
+    ax.plot(theta_crank, Fy, label = 'Fy')
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Force (kN)")
+    ax.legend()
+
+    plt.show()
