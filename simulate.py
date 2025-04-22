@@ -94,8 +94,8 @@ def simulate_connecting_rod(params, funcs, npoints):
     output['T4'] = T4
 
     ## Find pressure for the compression stroke
-    V_compression = kinematics_data_compression['Vd']
-    P_compression = P1*(V1**k)/(V_compression**k) + Vc
+    V_compression = kinematics_data_compression['Vd'] + Vc
+    P_compression = P1*(V1**k)/(V_compression**k)
 
     ## Find pressure for the power stroke
     V_power = kinematics_data_power['Vd'] + Vc
