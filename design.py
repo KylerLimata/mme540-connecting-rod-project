@@ -7,17 +7,18 @@ params = {
     'S': 0.096, # m
     'r': 0.2, # m
     'CR': 10,
-    'w_beam': 0.06, # m
-    't_beam': 0.04, # m
+    'w_beam': 0.05, # m
+    't_beam': 0.03, # m
     't_center': 0.02, # m
     'w_base': 0.1, # m
+    'r_base_fillet': 0.01, # m
      # Stress Concentrations
     'kt': {
         'axial': [
-            1.0, # Points 1 and 2
+            1.175, # Points 1 and 2
         ],
         'bending': [
-            1.0, # Points 1 and 2
+            1.15, # Points 1 and 2
         ]
     },
     # Otto Cycle Parameters
