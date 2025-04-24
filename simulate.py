@@ -115,7 +115,7 @@ def simulate_connecting_rod(params, funcs, npoints):
     results['V'] = V
     results['P'] = P
 
-    ## Computes load F in x and y
+    ## Compute load F in x and y
     A = np.pi/4*B**2 # Piston Head Area
     F = P*A # Force
     Fx = F*np.sin(theta_rod)
@@ -123,6 +123,18 @@ def simulate_connecting_rod(params, funcs, npoints):
     results['F'] = F
     results['Fx'] = Fx
     results['Fy'] = Fy
+
+    ## Evaluate each stress equation and
+    ## Compute sigma 1
+    stresses = []
+
+    for func in funcs:
+        sigma_x, sigma_y, tau_xy = func(params, Fx, Fy)
+        sigma_1 = (sigma_x + sigma_y)/2 + np.sqrt(((sigma_x + sigma_y)/2)**2 + tau_xy**2)
+        
+        stresses.append(sigma_1)
+    
+    results['stresses'] = stresses
 
     return results
 
@@ -160,6 +172,20 @@ def plot_results(results):
     ax.plot(theta_crank, Fy, label = 'Fy')
     ax.set_xlabel(r"$\theta_{crank} (rad)$")
     ax.set_ylabel("Force (kN)")
+    ax.legend()
+
+    ## Plot Stresses
+    stresses = results['stresses']
+    fig, ax = plt.subplots()
+    i = 0
+
+    for sigma_1 in stresses:
+        i = i + 1
+
+        ax.plot(theta_crank, sigma_1, label=r"$\sigma_{1n}$".replace('n', i))
+
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Stress")
     ax.legend()
 
     plt.show()
