@@ -182,7 +182,7 @@ def plot_results(results):
     for sigma_1 in stresses:
         i = i + 1
 
-        ax.plot(theta_crank, sigma_1, label=r"$\sigma_{1n}$".replace('n', f'{i}'))
+        ax.plot(theta_crank, sigma_1, label=r"$\sigma_{n,1}$".replace('n', f'{i}'))
 
     ax.set_xlabel(r"$\theta_{crank} (rad)$")
     ax.set_ylabel("Stress")
