@@ -43,7 +43,23 @@ def stress_at_1(params, Fx, Fy):
 
     return sigma_x, sigma_y, tau_xy
 
-funcs = [stress_at_1]
+def stress_at_2(params, Fx, Fy):
+    kt_axial = params['kt']['axial'][0]
+    kt_bending = params['kt']['bending'][0]
+    w_beam = params['w_beam']
+    t_beam = params['t_beam']
+    r_rod = params['r']
+    w_base = params['w_base']
+
+    A_cross = w_beam*t_beam
+    M = Fx*(r_rod - w_base)
+    sigma_x = 1.5*(Fx/A_cross)
+    sigma_y = kt_axial*(Fy/A_cross)
+    tau_xy = kt_bending*((-6*M)/(t_beam*w_beam**2))
+
+    return sigma_x, sigma_y, tau_xy
+
+funcs = [stress_at_1, stress_at_2]
 
 ## 
 npoints = 200
