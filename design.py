@@ -37,30 +37,52 @@ def stress_at_1(params, Fx, Fy):
     w_base = params['w_base']
 
     A_cross = w_beam*t_beam
-    M = Fx*(r_rod - w_base)
-    sigma_x = 1.5*(Fx/A_cross)
+    M = Fx*(r_rod - 0.5*w_base)
+    sigma_x = kt_bending*((6*M)/(t_beam*w_beam**2))
     sigma_y = kt_axial*(Fy/A_cross)
-    tau_xy = kt_bending*((6*M)/(t_beam*w_beam**2))
+    tau_xy = 1.5*(Fx/A_cross)
 
     return sigma_x, sigma_y, tau_xy
 
 def stress_at_2(params, Fx, Fy):
-    kt_axial = params['kt']['axial'][0]
-    kt_bending = params['kt']['bending'][0]
-    w_beam = params['w_beam']
-    t_beam = params['t_beam']
-    r_rod = params['r']
-    w_base = params['w_base']
-
-    A_cross = w_beam*t_beam
-    M = Fx*(r_rod - w_base)
-    sigma_x = 1.5*(Fx/A_cross)
-    sigma_y = kt_axial*(Fy/A_cross)
-    tau_xy = kt_bending*((-6*M)/(t_beam*w_beam**2))
+    
+    sigma_x = 0
+    sigma_y = 0
+    tau_xy = 0
 
     return sigma_x, sigma_y, tau_xy
 
-funcs = [stress_at_1, stress_at_2]
+def stress_at_3(params, Fx, Fy):
+    kt_axial = params['kt']['axial'][2]
+    t_web = params['t_web']
+    w_beam = params['w_beam']
+
+    A_cross = t_web*w_beam
+    sigma_x = 0
+    sigma_y = kt_axial*Fy/A_cross
+    tau_xy = 1.5*Fx/A_cross
+
+    return sigma_x, sigma_y, tau_xy
+
+def stress_at_4(params, Fx, Fy):
+    w_beam = params['w_beam']
+    t_beam = params['t_beam']
+    w_web = params['w_web']
+    t_web = params['t_web']
+    r_rod = params['r']
+    w_base = params['w_base']
+    r_base_fillet = params['r_base_fillet']
+    
+    A_cross = w_beam*t_beam - w_web(t_beam - t_web)
+    M = Fx*(r_rod - 0.5*w_base - r_base_fillet - 0.5*w_web)
+    I = (w_web*t_web**3)/12 + ((t_beam**3)/12)*(w_beam - w_web)
+    sigma_x = (M*w_beam)/(2*I)
+    sigma_y = Fy/A_cross
+    tau_xy = 1.5*(Fx/w_beam*t_web)
+
+    return sigma_x, sigma_y, tau_xy
+
+funcs = [stress_at_1]
 
 ## 
 npoints = 200
