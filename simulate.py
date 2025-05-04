@@ -194,9 +194,13 @@ def analyze_results(results):
     stresses = results['stresses']
     i = 0
 
+    print("Maximum and Average Stresses:")
     for sigma_1 in stresses:
         i = i + 1
         avg_sigma_1 = np.mean(sigma_1)
         max_sigma_1 = np.max(sigma_1)
 
         print(f"At point {i}, mean stress = {avg_sigma_1}, max_stress = {max_sigma_1}")
+
+    print("Stresses at the Start of Combustion:")
+    
