@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def piston_kinematics(B, S, r, theta_crank):
     """
@@ -119,21 +120,34 @@ def simulate_connecting_rod(params, funcs, npoints):
     A = np.pi/4*B**2 # Piston Head Area
     F = P*A # Force
     Fx = F*np.sin(theta_rod)
-    Fy = F*np.cos(theta_rod)
+    Fy = -F*np.cos(theta_rod)
     results['F'] = F
     results['Fx'] = Fx
     results['Fy'] = Fy
 
     ## Evaluate each stress equation and
     ## Compute sigma 1
-    stresses = []
+    x_stresses = []
+    y_stresses = []
+    tau_stresses = []
+    principal_stresses = []
 
     for func in funcs:
         sigma_x, sigma_y, tau_xy = func(params, Fx, Fy)
         sigma_1 = (sigma_x + sigma_y)/2 + np.sqrt(((sigma_x + sigma_y)/2)**2 + tau_xy**2)
         
-        stresses.append(sigma_1)
+        x_stresses.append(sigma_x)
+        y_stresses.append(sigma_y)
+        tau_stresses.append(tau_xy)
+        principal_stresses.append(sigma_1)
     
+
+    stresses = {
+        'sigma_x': x_stresses,
+        'sigma_y': y_stresses,
+        'tau_xy': tau_stresses,
+        'principal': principal_stresses
+    }
     results['stresses'] = stresses
 
     return results
@@ -174,33 +188,99 @@ def plot_results(results):
     ax.set_ylabel("Force (kN)")
     ax.legend()
 
-    ## Plot Stresses
-    stresses = results['stresses']
+    ## Plot x Stresses
+    x_stresses = results['stresses']['sigma_x']
     fig, ax = plt.subplots()
     i = 0
 
-    for sigma_1 in stresses:
+    for sigma_x in x_stresses:
         i = i + 1
 
-        ax.plot(theta_crank, sigma_1, label=r"$\sigma_{n,1}$".replace('n', f'{i}'))
+        ax.plot(theta_crank, sigma_x, label=r"$\sigma_{n,x}$".replace('n', f'{i}'))
 
     ax.set_xlabel(r"$\theta_{crank} (rad)$")
     ax.set_ylabel("Stress")
+    ax.set_title(r"$\sigma_x$")
+    ax.legend()
+
+    ## Plot y Stresses
+    y_stresses = results['stresses']['sigma_y']
+    fig, ax = plt.subplots()
+    i = 0
+
+    for sigma_y in y_stresses:
+        i = i + 1
+
+        ax.plot(theta_crank, sigma_y, label=r"$\sigma_{n,y}$".replace('n', f'{i}'))
+
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Stress")
+    ax.set_title(r"$\sigma_y$")
+    ax.legend()
+
+    ## Plot Sheat Stresses
+    tau_stresses = results['stresses']['tau_xy']
+    fig, ax = plt.subplots()
+    i = 0
+
+    for tau_xy in tau_stresses:
+        i = i + 1
+
+        ax.plot(theta_crank, tau_xy, label=r"$\tau_{n,xy}$".replace('n', f'{i}'))
+
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Stress")
+    ax.set_title(r"$\tau_xy$")
+    ax.legend()
+
+    ## Plot Principal Stresses
+    principal_stresses = results['stresses']['principal']
+    fig, ax = plt.subplots()
+    i = 0
+
+    for sigma_x in principal_stresses:
+        i = i + 1
+
+        ax.plot(theta_crank, sigma_x, label=r"$\sigma_{n,1}$".replace('n', f'{i}'))
+
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Stress")
+    ax.set_title("Principal Stresses")
     ax.legend()
 
     plt.show()
 
 def analyze_results(results):
-    stresses = results['stresses']
+    x_stresses = results['stresses']['sigma_x']
+    y_stresses = results['stresses']['sigma_y']
+    tau_stresses = results['stresses']['tau_xy']
+    principal_stresses = results['stresses']['principal']
     i = 0
 
-    print("Maximum and Average Stresses:")
-    for sigma_1 in stresses:
-        i = i + 1
-        avg_sigma_1 = np.mean(sigma_1)
-        max_sigma_1 = np.max(sigma_1)
+    np.set_printoptions(precision=4)
 
-        print(f"At point {i}, mean stress = {avg_sigma_1}, max_stress = {max_sigma_1}")
+    print("Maximum and Average Stresses:")
+    for sigma_1 in principal_stresses:
+        i = i + 1
+        avg_sigma_1 = np.mean(sigma_1)*10**-6
+        max_sigma_1 = np.max(sigma_1)*10**-6
+
+        print(f"At point {i}, mean stress = {avg_sigma_1:.3f} MPa, max stress = {max_sigma_1:.3f} Mpa")
 
     print("Stresses at the Start of Combustion:")
-    
+
+
+def save_results(results, filename):
+    row_names = ['theta', 'Fx', 'Fy']
+    data = np.array([results['theta_crank'],results['Fx'],results['Fy']])
+    x_stresses = results['stresses']['sigma_x']
+
+    i = 0
+    for sigma_x in x_stresses:
+        i = i + 1
+        data = np.concatenate((data, sigma_x), axis=1)
+        row_names.append(f"point {i}")
+
+    df = pd.DataFrame(data, index=row_names)
+
+    df.to_csv(f"results_{filename}_sigmax.csv", index=True, header=False)

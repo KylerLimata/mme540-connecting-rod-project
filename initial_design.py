@@ -1,4 +1,5 @@
 import simulate as sim
+import numpy as np
 
 ## Define piston/engine parameters
 params = {
@@ -56,7 +57,7 @@ def stress_at_2(params, Fx, Fy):
     w_beam = params['w_beam']
 
     A_cross = t_web*w_beam
-    sigma_x = 0
+    sigma_x = np.zeros_like(Fx)
     sigma_y = kt_axial*Fy/A_cross
     tau_xy = 1.5*Fx/A_cross
 
