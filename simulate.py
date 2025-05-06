@@ -278,9 +278,23 @@ def save_results(results, filename):
     i = 0
     for sigma_x in x_stresses:
         i = i + 1
-        data = np.concatenate((data, sigma_x), axis=1)
+        data = np.vstack((data, np.reshape(sigma_x, (1, -1))))
         row_names.append(f"point {i}")
 
     df = pd.DataFrame(data, index=row_names)
 
     df.to_csv(f"results_{filename}_sigmax.csv", index=True, header=False)
+
+    row_names = ['theta', 'Fx', 'Fy']
+    data = np.array([results['theta_crank'],results['Fx'],results['Fy']])
+    y_stresses = results['stresses']['sigma_y']
+
+    i = 0
+    for sigma_y in y_stresses:
+        i = i + 1
+        data = np.vstack((data, np.reshape(sigma_y, (1, -1))))
+        row_names.append(f"point {i}")
+
+    df = pd.DataFrame(data, index=row_names)
+
+    df.to_csv(f"results_{filename}_sigmay.csv", index=True, header=False)
