@@ -22,6 +22,8 @@ params = {
             1.8, # Point 1
             1.65, # Point 2
             2.15, # Point 3
+            1.0, # Point 4, not used
+            1.0, # Point 5
         ],
         'bending': [
             1.5, # Point 1
@@ -155,6 +157,20 @@ def stress_at_4(params, Fx, Fy):
     sigma_x = (M*w_beam)/(2*I)
     sigma_y = Fy/A_cross
     tau_xy = 1.5*(Fx/w_beam*t_web)
+
+    return sigma_x, sigma_y, tau_xy
+
+def stress_at_5(params, Fx, Fy):
+    kt_axial = params['kt']['axial'][4]
+    d_pin = params['d_pin']
+    d_out = params['d_out']
+    t_beam = params['t_beam']
+
+    A_cross = ((d_out-d_pin)*t_beam)
+
+    sigma_x = np.zeros_like(Fx)
+    sigma_y = kt_axial*Fy/A_cross
+    tau_xy = 2*Fx/A_cross
 
     return sigma_x, sigma_y, tau_xy
 
