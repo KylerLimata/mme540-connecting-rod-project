@@ -271,6 +271,21 @@ def analyze_results(results):
 
 
 def save_results(results, filename):
+    Fx = results['Fx']
+
+    data = np.column_stack((
+        np.arange(len(Fx)),
+        results['Fx']
+    ))
+    df = pd.DataFrame({
+        'Time': np.arange(len(Fx)),
+        'X [N]': Fx,
+        'Y [N]': np.zeros_like(Fx),
+        'Z [N]': np.zeros_like(Fx)
+    })
+
+    df.to_csv(f"loading_{filename}.csv", index=False)
+
     row_names = ['theta', 'Fx', 'Fy']
     data = np.array([results['theta_crank'],results['Fx'],results['Fy']])
     x_stresses = results['stresses']['sigma_x']
