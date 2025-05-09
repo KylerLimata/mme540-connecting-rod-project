@@ -55,18 +55,6 @@ def stress_at_1(params, Fx, Fy):
 
     return sigma_x, sigma_y, tau_xy
 
-def stress_at_2(params, Fx, Fy):
-    kt_axial = params['kt']['axial'][1]
-    t_web = params['t_web']
-    w_beam = params['w_beam']
-
-    A_cross = t_web*w_beam
-    sigma_x = np.zeros_like(Fx)
-    sigma_y = kt_axial*Fy/A_cross
-    tau_xy = 1.5*Fx/A_cross
-
-    return sigma_x, sigma_y, tau_xy
-
 def stress_at_2_revised(params, Fx, Fy):
     kt_axial = params['kt']['axial'][1]
     t_web = params['t_web']
