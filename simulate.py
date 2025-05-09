@@ -271,45 +271,24 @@ def analyze_results(results):
 
 
 def save_results(results, filename):
-    Fx = results['Fx']
-
-    data = np.column_stack((
-        np.arange(len(Fx)),
-        results['Fx']
-    ))
-    df = pd.DataFrame({
-        'Time': np.arange(len(Fx)),
-        'X [N]': Fx,
-        'Y [N]': np.zeros_like(Fx),
-        'Z [N]': np.zeros_like(Fx)
-    })
-
-    df.to_csv(f"loading_{filename}.csv", index=False)
-
-    row_names = ['theta', 'Fx', 'Fy']
-    data = np.array([results['theta_crank'],results['Fx'],results['Fy']])
     x_stresses = results['stresses']['sigma_x']
-
-    i = 0
-    for sigma_x in x_stresses:
-        i = i + 1
-        data = np.vstack((data, np.reshape(sigma_x, (1, -1))))
-        row_names.append(f"point {i}")
-
-    df = pd.DataFrame(data, index=row_names)
-
-    df.to_csv(f"results_{filename}_sigmax.csv", index=True, header=False)
-
-    row_names = ['theta', 'Fx', 'Fy']
-    data = np.array([results['theta_crank'],results['Fx'],results['Fy']])
     y_stresses = results['stresses']['sigma_y']
+    shear_stresses = results['stresses']['tau_xy']
+    principle_stresses = results['stresses']['principal']
 
-    i = 0
-    for sigma_y in y_stresses:
-        i = i + 1
-        data = np.vstack((data, np.reshape(sigma_y, (1, -1))))
-        row_names.append(f"point {i}")
+    data = {
+        'thetacrank': results['theta_crank'],
+        'Fx': results['Fx'],
+        'Fy': results['Fy']
+    }
 
-    df = pd.DataFrame(data, index=row_names)
+    for i in range(len(principle_stresses)):
+        data[f"sigmax{i + 1}"] = x_stresses[i]
+        data[f"sigmay{i + 1}"] = y_stresses[i]
+        data[f"tauxy{i + 1}"] = shear_stresses[i]
+        data[f"sigma1{i + 1}"] = principle_stresses[i]
 
-    df.to_csv(f"results_{filename}_sigmay.csv", index=True, header=False)
+    df = pd.DataFrame(data)
+
+    df.to_csv(f"results_{filename}.csv", index=False)
+
