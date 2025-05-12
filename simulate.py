@@ -134,7 +134,7 @@ def simulate_connecting_rod(params, funcs, npoints):
 
     for func in funcs:
         sigma_x, sigma_y, tau_xy = func(params, Fx, Fy)
-        sigma_1 = (sigma_x + sigma_y)/2 + np.sqrt(((sigma_x + sigma_y)/2)**2 + tau_xy**2)
+        sigma_1 = (sigma_x + sigma_y)/2 + np.sqrt(((sigma_x - sigma_y)/2)**2 + tau_xy**2)
         
         x_stresses.append(sigma_x)
         y_stresses.append(sigma_y)
