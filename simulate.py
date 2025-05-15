@@ -225,6 +225,159 @@ def simulate_connecting_rod(params, npoints):
 
     return results
 
+def simulate_new(params, npoints):
+    """
+    Performs a numerical simulation of the loading on a
+    piston connecting rod over all four strokes of the
+    ideal Otto cycle.
+
+    Uses the passed functions to find the normal and
+    shear stresses at any given points and computes
+    the maximum principle stress at each and the
+    average of the maximum principle stresses.
+
+    2D stress conditions are assumed.
+
+    It is assumed that point 1 on the PV diagram is
+    the start of the intake stroke, points 2-3 are the
+    start and end of the compression stroke, 3-4 are
+    the start and end of the power stroke, and 6-1
+    are the start end end of the exhaust stroke.
+
+    Parameters
+    ----------
+    params: Simulation Parameters
+    npoints : Number of points to simulate at for each stroke
+
+    Returns
+    -------
+    Dictionary : Computed principle stresses
+    """
+
+    results = {} # Outpput data
+
+    ## Unpack parameters
+    B = params['B'] # Bore
+    S = params['S'] # Stroke
+    r = params['r'] # Connecting rod length
+    CR = params['CR'] # Compression Ratio
+    T1 = params['T1'] # Temperature at 1
+    P1 = params['P1'] # Pressure at 1
+    T4 = params['T4'] # Temperature at 4
+    Vs = (np.pi*S*B**2)/4 # Swept volume
+    Vc = (1/(CR - 1))*Vs # Clearance volume
+
+    ## Calculate kinematics for all four strokes
+    theta_crank_intake = np.linspace(0.0, np.pi, npoints)
+    kinematics_data_intake = piston_kinematics(B, S, r, theta_crank_intake)
+
+    theta_crank_compression = np.linspace(np.pi, 2*np.pi, npoints)
+    kinematics_data_compression = piston_kinematics(B, S, r, theta_crank_compression)
+
+    theta_crank_power = np.linspace(2*np.pi, 3*np.pi, npoints)
+    kinematics_data_power = piston_kinematics(B, S, r, theta_crank_power)
+
+    theta_crank_exhaust = np.linspace(0.0, np.pi, npoints)
+    kinematics_data_exhaust = piston_kinematics(B, S, r, theta_crank_exhaust)
+
+    ## Compute pressure at all 6 points
+    k = 1.4 # Specific heat ratio
+    V1 = Vc
+    # Intake Stroke, points 1-2
+    V2 = Vc + Vs
+    P2 = P1
+    T2 = T1
+    # Compression Stroke, points 2-3
+    V3 = Vc
+    P3 = P1*CR**k
+    T3 = T1*CR**(k - 1)
+    # Combustion, points 3-4
+    V4 = Vc
+    P4 = P3*(T4/T3)
+    # Power stroke, points 4-5
+    V5 = Vc + Vs
+    P5 = P4/(CR**k)
+    T5 = P5/(CR**(k-1))
+    # Head Rejection, points 5-6
+    V6 = Vc + Vs
+    P6 = P2
+    T6 = T2
+
+    # Record to results
+    results['V1'] = V1
+    results['V2'] = V2
+    results['V3'] = V3
+    results['V4'] = V4
+    results['V5'] = V5
+    results['V6'] = V6
+    results['P1'] = P1
+    results['P2'] = P2
+    results['P3'] = P3
+    results['P4'] = P4
+    results['P5'] = P5
+    results['P6'] = P6
+    results['T1'] = T1
+    results['T2'] = T2
+    results['T3'] = T3
+    results['T4'] = T4
+    results['T5'] = T5
+    results['T6'] = T6
+
+    ## Pressure and volume for intake stroke (1-2)
+    V_intake = np.linspace(V1, V2, len(theta_crank_intake))
+    P_intake = np.ones_like(theta_crank_intake)*P1
+
+    ## Pressure and volume for compression stroke (2-3)
+    V_compression = kinematics_data_compression['Vd'] + Vc
+    P_compression = P2*(V2**k)/(V_compression**k)
+
+    ## Pressure and volume for power stroke (4-5)
+    V_power = kinematics_data_power['Vd'] + Vc
+    P_power = (P4*V4**k)/(V_power**k)
+
+    ## Pressure and valume for exhaust stroke (6-1)
+    V_exhaust = np.linspace(V6, V1, len(theta_crank_exhaust))
+    P_exhaust = np.ones_like(theta_crank_intake)*P6
+
+    ## Rod angle
+    theta_rod_intake = kinematics_data_intake['theta_rod']
+    theta_rod_compression = -kinematics_data_compression['theta_rod']
+    theta_rod_power = kinematics_data_power['theta_rod']
+    theta_rod_exhaust = -kinematics_data_exhaust['theta_rod']
+
+    theta_crank = np.concat((
+        theta_crank_intake, 
+        theta_crank_compression, 
+        theta_crank_power,
+        theta_crank_exhaust
+        ))
+    theta_rod = np.concat((
+        theta_rod_intake, 
+        theta_rod_compression, 
+        theta_rod_power,
+        theta_rod_exhaust
+        ))
+    V = np.concat((
+        V_intake,
+        V_compression,
+        V_power,
+        V_exhaust
+    ))
+    P = np.concat((
+        P_intake,
+        P_compression,
+        P_power,
+        P_exhaust
+    ))
+
+    results['theta_crank'] = theta_crank
+    results['theta_rod'] = theta_rod
+    results['P'] = P
+    results['V'] = V
+
+
+
+
 def plot_results(results):
     theta_crank = results['theta_crank']
 
