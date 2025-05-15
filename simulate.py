@@ -375,9 +375,6 @@ def simulate_new(params, npoints):
     results['P'] = P
     results['V'] = V
 
-
-
-
 def plot_results(results):
     theta_crank = results['theta_crank']
 
@@ -475,6 +472,17 @@ def plot_results(results):
     ax.legend()
 
     plt.show()
+
+def plot_new(results):
+    ## Plot the PV diagram
+    P = results['P']
+    V = results['V']
+    fig, ax = plt.subplots()
+
+    ax.plot(V*10**9, P*10**-3)
+    ax.set_xlabel("$Volume (mm^3)$")
+    ax.set_ylabel("Pressure (kPa)")
+    ax.set_title("PV Diagram")
 
 def analyze_results(results):
     x_stresses = results['stresses']['sigma_x']
