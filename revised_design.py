@@ -4,8 +4,8 @@ import numpy as np
 ## Define piston/engine parameters
 params = {
     # Geometry Parameters
-    'B': 0.1, # m, bore
-    'S': 0.09, # m, stroke
+    'B': 0.08, # m, bore
+    'S': 0.096, # m, stroke
     'r': 0.2, # m, connecting rod length
     'CR': 10, # compression ratio
     'd_pin': 0.045, # m, pin diameter

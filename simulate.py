@@ -277,7 +277,7 @@ def simulate_new(params, npoints):
     theta_crank_power = np.linspace(2*np.pi, 3*np.pi, npoints)
     kinematics_data_power = piston_kinematics(B, S, r, theta_crank_power)
 
-    theta_crank_exhaust = np.linspace(0.0, np.pi, npoints)
+    theta_crank_exhaust = np.linspace(3*np.pi, 4*np.pi, npoints)
     kinematics_data_exhaust = piston_kinematics(B, S, r, theta_crank_exhaust)
 
     ## Compute pressure at all 6 points
@@ -374,6 +374,15 @@ def simulate_new(params, npoints):
     results['theta_rod'] = theta_rod
     results['P'] = P
     results['V'] = V
+
+    ## Compute load F in x and y
+    A = np.pi/4*B**2 # Piston Head Area
+    F = P*A # Force magnitude
+    Fx = F*np.sin(theta_rod)
+    Fy = -F*np.cos(theta_rod)
+    results['F'] = F
+    results['Fx'] = Fx
+    results['Fy'] = Fy
 
     return results
 
@@ -476,6 +485,8 @@ def plot_results(results):
     plt.show()
 
 def plot_new(results):
+    theta_crank = results['theta_crank']
+
     ## Plot the PV diagram
     P = results['P']
     V = results['V']
@@ -485,6 +496,19 @@ def plot_new(results):
     ax.set_xlabel("$Volume (mm^3)$")
     ax.set_ylabel("Pressure (MPa)")
     ax.set_title("PV Diagram")
+
+    ## Plot the loads
+    F = results['F']
+    Fx = results['Fx']
+    Fy = results['Fy']
+    fig, ax = plt.subplots()
+
+    ax.plot(theta_crank, F*10**-3, label = 'F')
+    ax.plot(theta_crank, Fx*10**-3, label = 'Fx')
+    ax.plot(theta_crank, Fy*10**-3, label = 'Fy')
+    ax.set_xlabel(r"$\theta_{crank} (rad)$")
+    ax.set_ylabel("Force (kN)")
+    ax.legend()
 
     plt.show()
 
