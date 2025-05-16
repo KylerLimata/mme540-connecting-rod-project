@@ -564,23 +564,18 @@ def plot_results(results):
     plt.show()
 
 def analyze_results(results):
-    x_stresses = results['stresses']['sigma_x']
-    y_stresses = results['stresses']['sigma_y']
-    tau_stresses = results['stresses']['tau_xy']
-    principal_stresses = results['stresses']['principal']
+    sigma_1 = results['stresses']['sigma_1']
     i = 0
 
     np.set_printoptions(precision=4)
 
     print("Maximum and Average Stresses:")
-    for sigma_1 in principal_stresses:
+    for sigma_1i in sigma_1:
         i = i + 1
-        avg_sigma_1 = np.mean(sigma_1)*10**-6
-        max_sigma_1 = np.max(sigma_1)*10**-6
+        avg_sigma_1i = np.mean(sigma_1i)*10**-6
+        max_sigma_1i = np.max(sigma_1i)*10**-6
 
-        print(f"At point {i}, mean stress = {avg_sigma_1:.3f} MPa, max stress = {max_sigma_1:.3f} Mpa")
-
-    print("Stresses at the Start of Combustion:")
+        print(f"At point {i}, mean stress = {avg_sigma_1i:.3f} MPa, max stress = {max_sigma_1i:.3f} Mpa")
 
 
 def save_results(results, filename):
