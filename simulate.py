@@ -406,7 +406,7 @@ def simulate_new(params, npoints):
         'sigma_x': x_stresses,
         'sigma_y': y_stresses,
         'tau_xy': tau_stresses,
-        'principal': principal_stresses
+        'sigma_1': principal_stresses
     }
     results['stresses'] = stresses
 
@@ -535,6 +535,36 @@ def plot_new(results):
     ax.set_xlabel(r"$\theta_{crank} (rad)$")
     ax.set_ylabel("Force (kN)")
     ax.legend()
+
+    ## Plot the stresses
+    titles = ['Point 1', 'Point 2', 'Point 3', 'Point 4']
+    labels = [r"$\sigma_x$", r"$\sigma_y", r"\tau_xy", r"\sigma_1"]
+    colors = plt.cm.viridis(np.linspace(0, 1, 4))
+    sigma_x = results['stresses']['sigma_x']
+    sigma_y = results['stresses']['sigma_y']
+    tau_xy = results['stresses']['tau_xy']
+    sigma_1 = results['stresses']['sigma_1']
+    data = [sigma_x, sigma_y, tau_xy, sigma_1]
+
+    fig, axs = plt.subplots(2, 2, figsize=(10, 8), sharex=True, sharey=True)
+
+    for i, ax in enumerate(axs.flat):
+        for j, color in enumerate(colors):
+            y = data[j][i]
+            ax.plot(theta_crank, y, label=labels[j], color=color)
+        ax.set_title(titles[i])
+    
+    
+    # Extract legend handles and labels from the last axis (all should be the same)
+    handles, labels = axs[0, 0].get_legend_handles_labels()
+
+    # Add a single legend to the figure
+    fig.legend(handles, labels, loc='lower center', ncol=5, bbox_to_anchor=(0.5, -0.05))
+
+    # Adjust layout so the legend doesn't overlap
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.15)
+
 
     plt.show()
 
