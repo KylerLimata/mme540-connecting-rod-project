@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 def piston_kinematics(B, S, r, theta_crank):
     """
@@ -577,26 +578,39 @@ def analyze_results(results):
 
         print(f"At point {i}, mean stress = {avg_sigma_1i:.3f} MPa, max stress = {max_sigma_1i:.3f} Mpa")
 
+def save_results(results, name):
+    ## Create the results folder if it doesn't already exist
+    if not os.path.exists(f"results_{name}"):
+        os.mkdir(f"results_{name}")
 
-def save_results(results, filename):
-    x_stresses = results['stresses']['sigma_x']
-    y_stresses = results['stresses']['sigma_y']
-    shear_stresses = results['stresses']['tau_xy']
-    principle_stresses = results['stresses']['principal']
+    ## Save the loads for copy-pasting into ANSYS Transient
+    Fx = results['Fx']
+    Fy = results['Fy']
+    data = {
+        'step': np.linspace(1, len(Fx), len(Fx)),
+        'Fx': Fx,
+        'Fy': Fy
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(f"results_{name}/loads_{name}.csv", index=False)
 
+    ## Save the stresses
+    sigma_x = results['stresses']['sigma_x']
+    sigma_y = results['stresses']['sigma_y']
+    tau_xy = results['stresses']['tau_xy']
+    sigma_1 = results['stresses']['sigma_1']
     data = {
         'thetacrank': results['theta_crank'],
-        'Fx': results['Fx'],
-        'Fy': results['Fy']
+        'Fx': Fx,
+        'Fy': Fy
     }
 
-    for i in range(len(principle_stresses)):
-        data[f"sigmax{i + 1}"] = x_stresses[i]
-        data[f"sigmay{i + 1}"] = y_stresses[i]
-        data[f"tauxy{i + 1}"] = shear_stresses[i]
-        data[f"sigma1{i + 1}"] = principle_stresses[i]
+    for i in range(len(sigma_1)):
+        data[f"sigmax{i + 1}"] = sigma_x[i]
+        data[f"sigmay{i + 1}"] = sigma_y[i]
+        data[f"tauxy{i + 1}"] = tau_xy[i]
+        data[f"sigma1{i + 1}"] = sigma_1[i]
 
     df = pd.DataFrame(data)
 
-    df.to_csv(f"results_{filename}.csv", index=False)
-
+    df.to_csv(f"results_{name}/stresses_{name}.csv", index=False)
