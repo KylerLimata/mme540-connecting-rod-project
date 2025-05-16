@@ -102,8 +102,6 @@ def stress_at_4(params, Fx, Fy):
     tau_xy = 2*Fx/A_cross
 
     return sigma_x, sigma_y, tau_xy
-
-def simulate_connecting_rod(params, npoints):
     """
     Performs a numerical simulation of the loading on a
     piston connecting rod over the compression and
@@ -225,7 +223,7 @@ def simulate_connecting_rod(params, npoints):
 
     return results
 
-def simulate_new(params, npoints):
+def simulate_rod(params, npoints):
     """
     Performs a numerical simulation of the loading on a
     piston connecting rod over all four strokes of the
@@ -411,8 +409,6 @@ def simulate_new(params, npoints):
     results['stresses'] = stresses
 
     return results
-
-def plot_results(results):
     theta_crank = results['theta_crank']
 
     ## Plot the PV diagram
@@ -510,7 +506,7 @@ def plot_results(results):
 
     plt.show()
 
-def plot_new(results):
+def plot_results(results):
     theta_crank = results['theta_crank']
 
     ## Plot the PV diagram

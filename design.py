@@ -40,6 +40,6 @@ params = {
 
 ## 
 npoints = 100
-results = sim.simulate_new(params, npoints)
+results = sim.simulate_rod(params, npoints)
 
-sim.plot_new(results)
+sim.plot_results(results)
