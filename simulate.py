@@ -384,6 +384,32 @@ def simulate_new(params, npoints):
     results['Fx'] = Fx
     results['Fy'] = Fy
 
+    ## Evaluate each stress equation and
+    ## Compute sigma 1
+    funcs = [stress_at_1, stress_at_2, stress_at_3, stress_at_4]
+    x_stresses = []
+    y_stresses = []
+    tau_stresses = []
+    principal_stresses = []
+
+    for func in funcs:
+        sigma_x, sigma_y, tau_xy = func(params, Fx, Fy)
+        sigma_1 = (sigma_x + sigma_y)/2 + np.sqrt(((sigma_x - sigma_y)/2)**2 + tau_xy**2)
+        
+        x_stresses.append(sigma_x)
+        y_stresses.append(sigma_y)
+        tau_stresses.append(tau_xy)
+        principal_stresses.append(sigma_1)
+    
+
+    stresses = {
+        'sigma_x': x_stresses,
+        'sigma_y': y_stresses,
+        'tau_xy': tau_stresses,
+        'principal': principal_stresses
+    }
+    results['stresses'] = stresses
+
     return results
 
 def plot_results(results):
