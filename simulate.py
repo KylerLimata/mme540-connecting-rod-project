@@ -559,12 +559,11 @@ def plot_new(results):
     handles, labels = axs[0, 0].get_legend_handles_labels()
 
     # Add a single legend to the figure
-    fig.legend(handles, labels, loc='lower center', ncol=5, bbox_to_anchor=(0.5, -0.05))
+    fig.legend(handles, labels, loc='lower center', ncol=5, bbox_to_anchor=(0.5, -0.01))
 
     # Adjust layout so the legend doesn't overlap
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.15)
-
 
     plt.show()
 
