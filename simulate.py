@@ -537,8 +537,8 @@ def plot_new(results):
     ax.legend()
 
     ## Plot the stresses
-    titles = ['Point 1', 'Point 2', 'Point 3', 'Point 4']
-    labels = [r"$\sigma_x$", r"$\sigma_y", r"\tau_xy", r"\sigma_1"]
+    titles = [r"$\sigma_x$", r"$\sigma_y$", r"$\tau_{xy}$", r"$\sigma_1$"]
+    labels = ['Point 1', 'Point 2', 'Point 3', 'Point 4']
     colors = plt.cm.viridis(np.linspace(0, 1, 4))
     sigma_x = results['stresses']['sigma_x']
     sigma_y = results['stresses']['sigma_y']
@@ -550,7 +550,7 @@ def plot_new(results):
 
     for i, ax in enumerate(axs.flat):
         for j, color in enumerate(colors):
-            y = data[j][i]
+            y = data[i][j]
             ax.plot(theta_crank, y, label=labels[j], color=color)
         ax.set_title(titles[i])
     
