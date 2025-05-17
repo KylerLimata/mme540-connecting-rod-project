@@ -245,7 +245,7 @@ def simulate_rod(params, npoints):
 
     Parameters
     ----------
-    params: Simulation Parameters
+    params : Simulation Parameters
     npoints : Number of points to simulate at for each stroke
 
     Returns
@@ -508,6 +508,16 @@ def simulate_rod(params, npoints):
     plt.show()
 
 def plot_results(results):
+    """
+    Plots the simulation results for immediate viewing.
+    Produces a plot for the PV diagram, a plot for the
+    load vs. crankshaft angle, and a plot of all the
+    stresses.
+
+    Parameters
+    ----------
+    results : connecting rod simulation results
+    """
     theta_crank = results['theta_crank']
 
     ## Plot the PV diagram
@@ -565,6 +575,26 @@ def plot_results(results):
     plt.show()
 
 def save_results(results, name):
+    """
+    Saves the simulation results to several
+    different files. Each filename and the
+    directory the files are saved in is
+    suffixed with the passed name parameter
+
+    "loads_{name}.csv": The x and y loads over
+    timesteps for easy copy-pasting into
+    an ANSYS transient structural simulation
+
+    "stresses_{name}.csv": The computed stress data
+
+    "report_{name}.txt": A report file detailing the
+    max and average principle stress at each point
+
+    Parameters
+    ----------
+    results : connecting rod simulation results
+    name : the name of the design
+    """
     ## Create the results folder if it doesn't already exist
     if not os.path.exists(f"results_{name}"):
         os.mkdir(f"results_{name}")
