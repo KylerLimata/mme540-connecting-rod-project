@@ -42,6 +42,5 @@ params = {
 npoints = 100
 results = sim.simulate_rod(params, npoints)
 
-sim.analyze_results(results)
 sim.save_results(results, "initial")
 sim.plot_results(results)

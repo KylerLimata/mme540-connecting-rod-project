@@ -564,20 +564,6 @@ def plot_results(results):
 
     plt.show()
 
-def analyze_results(results):
-    sigma_1 = results['stresses']['sigma_1']
-    i = 0
-
-    np.set_printoptions(precision=4)
-
-    print("Maximum and Average Stresses:")
-    for sigma_1i in sigma_1:
-        i = i + 1
-        avg_sigma_1i = np.mean(sigma_1i)*10**-6
-        max_sigma_1i = np.max(sigma_1i)*10**-6
-
-        print(f"At point {i}, mean stress = {avg_sigma_1i:.3f} MPa, max stress = {max_sigma_1i:.3f} Mpa")
-
 def save_results(results, name):
     ## Create the results folder if it doesn't already exist
     if not os.path.exists(f"results_{name}"):
@@ -614,3 +600,10 @@ def save_results(results, name):
     df = pd.DataFrame(data)
 
     df.to_csv(f"results_{name}/stresses_{name}.csv", index=False)
+
+    ## Write report
+    with open(f"results_{name}/report_{name}.txt", "w") as file:
+        for i, sigma_1i in enumerate(sigma_1):
+            avg_sigma_1i = np.mean(sigma_1i)*10**-6
+            max_sigma_1i = np.max(sigma_1i)*10**-6
+            file.write(f"Point {i+1}:\n  mean stress = {avg_sigma_1i:.3f} MPa,\n  max stress = {max_sigma_1i:.3f} Mpa\n")

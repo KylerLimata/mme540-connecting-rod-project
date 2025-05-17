@@ -1,0 +1,12 @@
+Point 1:
+  mean stress = 45.842 MPa,
+  max stress = 462.505 Mpa
+Point 2:
+  mean stress = 1.356 MPa,
+  max stress = 11.375 Mpa
+Point 3:
+  mean stress = 150.435 MPa,
+  max stress = 1499.802 Mpa
+Point 4:
+  mean stress = 3.350 MPa,
+  max stress = 28.228 Mpa
