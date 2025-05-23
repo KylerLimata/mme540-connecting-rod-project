@@ -24,7 +24,6 @@ params = {
             1.65, # Point 2
             2.15, # Point 3
             1.0, # Point 4, not used
-            1.0, # Point 5
         ],
         'bending': [
             1.5, # Point 1
@@ -35,7 +34,7 @@ params = {
     # Otto Cycle Parameters
     'T1': 21, # Celcius
     'P1': 101.325*(10**3), # Pa
-    'T4': 1871 # Celcius
+    'T4': 1327 # Celcius
 }
 
 ## 
