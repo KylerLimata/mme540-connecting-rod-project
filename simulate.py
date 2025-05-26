@@ -91,12 +91,16 @@ def stress_at_3(params, Fx, Fy):
     return sigma_x, sigma_y, tau_xy
 
 def stress_at_4(params, Fx, Fy):
-    kt_axial = params['kt']['axial'][4]
+    """
+    Simulates the stresses at the side of the
+    pin ring at the top of the connecting rod.
+    """
+    kt_axial = params['kt']['axial'][3]
     d_pin = params['d_pin']
-    d_out = params['d_out']
-    t_beam = params['t_beam']
+    d_ring = params['d_ring']
+    t_ring = params['t_ring']
 
-    A_cross = ((d_out-d_pin)*t_beam)
+    A_cross = ((d_ring-d_pin)*t_ring)
 
     sigma_x = np.zeros_like(Fx)
     sigma_y = kt_axial*Fy/A_cross
