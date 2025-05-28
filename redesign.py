@@ -14,22 +14,20 @@ params = {
     'w_beam': 0.05, # m, outer width of beam section
     't_beam': 0.03, # m, outer length of the beam
     'w_web': 0.03, # m, width of the web 
-    't_web': 0.015, # m
     'w_base': 0.1, # m, width of piston base
     'r_base_fillet': 0.01, # m, fillet where the beam meets base
-    'r_web_fillet': 0.0045, # m, fillet inside the beam
      # Stress Concentrations
     'kt': {
         'axial': [
             1.8, # Point 1
-            1.65, # Point 2
-            2.15, # Point 3
+            1.3, # Point 2
+            1.0, # Point 3
             1.0, # Point 4, not used
         ],
         'bending': [
             1.5, # Point 1
-            1.0, # Point 2, not used
-            1.2, # Point 3
+            1.3, # Point 2, not used
+            1.0, # Point 3
             1.0, # Point 4
         ]
     },
@@ -38,6 +36,12 @@ params = {
     'P1': 101.325*(10**3), # Pa
     'T4': 1327 # Celcius
 }
+
+## Compute dimensions with respect to chosen kt
+tbeam_over_tweb = 1.05
+rwebfillet_over_tweb = 0.3
+params['t_web'] = params['t_beam']/tbeam_over_tweb
+params['r_web_fillet'] = params['t_web']*rwebfillet_over_tweb
 
 ## 
 npoints = 100
