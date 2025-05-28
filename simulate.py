@@ -83,7 +83,7 @@ def stress_at_3(params, Fx, Fy):
     
     A_cross = w_beam*t_beam - w_web*(t_beam - t_web) + 4*A_fillet
     M = Fx*(r_rod - 0.5*w_base - r_base_fillet - 0.5*w_web)
-    I = (w_web*t_web**3)/12 + ((t_beam**3)/12)*(w_beam - w_web)
+    I = (t_web*w_web**3)/12 + (t_beam/12)*(w_beam**3 - w_web**3)
     sigma_x = (M*w_beam)/(2*I)
     sigma_y = Fy/A_cross
     tau_xy = 1.5*(Fx/w_beam*t_web)
