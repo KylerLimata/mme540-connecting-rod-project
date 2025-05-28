@@ -19,14 +19,14 @@ params = {
      # Stress Concentrations
     'kt': {
         'axial': [
-            1.8, # Point 1
+            1.65, # Point 1
             1.3, # Point 2
             1.0, # Point 3
             1.0, # Point 4, not used
         ],
         'bending': [
-            1.5, # Point 1
-            1.3, # Point 2, not used
+            1.35, # Point 1
+            1.0, # Point 2, not used
             1.0, # Point 3
             1.0, # Point 4
         ]
@@ -40,8 +40,13 @@ params = {
 ## Compute dimensions with respect to chosen kt
 tbeam_over_tweb = 1.05
 rwebfillet_over_tweb = 0.3
-params['t_web'] = params['t_beam']/tbeam_over_tweb
-params['r_web_fillet'] = params['t_web']*rwebfillet_over_tweb
+params['t_web'] = params['t_beam']/tbeam_over_tweb # m, thickness of the web
+params['r_web_fillet'] = params['t_web']*rwebfillet_over_tweb # m, fillet inside the web
+
+wbase_over_wbeam = 2
+rbasefillet_over_wbeam = 0.3
+params['w_beam'] = params['w_base']/wbase_over_wbeam
+params['r_base_fillet'] = params['w_beam']*rbasefillet_over_wbeam # m, fillet where the beam meets base
 
 ## 
 npoints = 100
