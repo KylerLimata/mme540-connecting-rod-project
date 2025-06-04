@@ -32,7 +32,13 @@ params = {
     # Otto Cycle Parameters
     'T1': 21, # Celcius
     'P1': 101.325*(10**3), # Pa
-    'T4': 1327 # Celcius
+    'T4': 1327, # Celcius
+    # SF params
+    'Cm': 0.8,
+    'Cst': 0.8,
+    'Cr': 0.75,
+    'Sn': 1160*10**6,
+    'Su': 400*10**6
 }
 
 ## Compute certain dimensions to minimize stress concentration
@@ -55,5 +61,6 @@ print(f"r_base_fillet = {params['r_base_fillet']}")
 npoints = 100
 results = sim.simulate_rod(params, npoints)
 
+sim.compute_safety_factors(params, results)
 sim.save_results(results, "redesign")
 sim.plot_results(results)

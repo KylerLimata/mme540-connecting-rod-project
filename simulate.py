@@ -362,6 +362,136 @@ def plot_results(results):
 
     plt.show()
 
+def compute_sn(params, results):
+    """
+    Computes the endurance limit based on each 
+    individual point.
+
+    Parameters
+    ----------
+    params: connecting rod simulation parameters
+    results: connecting rod simulation results
+    """
+
+    ## Unpack parameters
+    Cm = params['Cm'] # material factor
+    Cst = params['Cst'] # 
+    Cr = params['Cr'] # Reliability factor
+    SF = params['SF'] # Safety Factor
+    w_beam = params['w_beam']
+    t_beam = params['t_beam']
+    w_web = params['w_web']
+    t_web = params['t_web']
+    d_pin = params['d_pin']
+    d_ring = params['d_ring']
+    t_ring = params['t_ring']
+    
+    ## Unpack results
+    sigma_1 = results['stresses']['sigma_1']
+
+    ## Find the inertia at each point
+    I = [0, 0, 0, 0]
+    I[1] = (t_beam*w_beam**3)/12
+    I[2] = (t_web*w_beam**3)/12
+    I[3] = (t_web*w_web**3)/12 + (t_beam/12)*(w_beam**3 - w_web**3)
+    I[4] = (t_ring*(d_ring-d_pin)**3)/12
+
+    ## Compute the endurance limits
+    D_inertia = [0, 0, 0, 0]
+    Cs = [0.0, 0.0, 0.0, 0.0]
+    Sn = [0, 0, 0, 0]
+
+    for i, Ii in enumerate(I):
+        D_inertia_i = (64*Ii/np.pi)**(1/4)
+        D_inertia[i] = D_inertia_i
+
+        if D_inertia_i <= 7.62:
+            Cs[i] = 1.0
+        elif D_inertia_i > 7.62 and D_inertia_i <= 50:
+            Cs[i] = (D_inertia_i/7.62)**(-0.11)
+        elif D_inertia_i > 50 and D_inertia_i <= 250:
+            Cs[i] = 0.859 - 0.000837*D_inertia_i
+        
+        avg_sigma_1i = np.mean(sigma_1[i])
+        max_sigma_1i = np.max(sigma_1[i])
+        C_all = Cm*Cst*Cr*Cs[i]
+
+        Sn[i] = SF[i]*((max_sigma_1i - avg_sigma_1i)/C_all + avg_sigma_1i/2)
+
+    results['sn_results'] = {
+        'I': I,
+        'D': D_inertia,
+        'Cs': Cs,
+        'Sn': Sn
+    }
+
+def compute_safety_factors(params, results):
+    """
+    Computes the endurance limit based on each 
+    individual point.
+
+    Parameters
+    ----------
+    params: connecting rod simulation parameters
+    results: connecting rod simulation results
+    """
+
+    ## Unpack parameters
+    Cm = params['Cm'] # material factor
+    Cst = params['Cst'] # 
+    Cr = params['Cr'] # Reliability factor
+    Sn = params['Sn'] # Safety Factor
+    Su = params['Su']
+    w_beam = params['w_beam']
+    t_beam = params['t_beam']
+    w_web = params['w_web']
+    t_web = params['t_web']
+    d_pin = params['d_pin']
+    d_ring = params['d_ring']
+    t_ring = params['t_ring']
+    
+    ## Unpack results
+    sigma_1 = results['stresses']['sigma_1']
+
+    ## Find the inertia at each point
+    I = [0, 0, 0, 0]
+    I[0] = (t_beam*w_beam**3)/12
+    I[1] = (t_web*w_beam**3)/12
+    I[2] = (t_web*w_web**3)/12 + (t_beam/12)*(w_beam**3 - w_web**3)
+    I[3] = (t_ring*(d_ring-d_pin)**3)/12
+
+    ## Compute the endurance limits
+    D_inertia = [0, 0, 0, 0]
+    Cs = [0.0, 0.0, 0.0, 0.0]
+    Sn_prime = [0, 0, 0, 0]
+    SF = [0, 0, 0, 0]
+
+    for i, Ii in enumerate(I):
+        D_inertia_i = (64*Ii/np.pi)**(1/4)
+        D_inertia[i] = D_inertia_i
+
+        if D_inertia_i <= 0.00762:
+            Cs[i] = 1.0
+        elif D_inertia_i > 0.00762 and D_inertia_i <= 0.05:
+            Cs[i] = (D_inertia_i/7.62)**(-0.11)
+        elif D_inertia_i > 0.05 and D_inertia_i <= 0.25:
+            Cs[i] = 0.859 - 0.000837*D_inertia_i
+        
+        avg_sigma_1i = np.mean(sigma_1[i])
+        max_sigma_1i = np.max(sigma_1[i])
+
+        Sn_prime[i] = Sn*Cm*Cst*Cr*Cs[i]
+        SF_inv = (max_sigma_1i - avg_sigma_1i)/Sn_prime[i] + avg_sigma_1i/Su
+        SF[i] = 1/SF_inv
+
+    results['sf_results'] = {
+        'I': I,
+        'D': D_inertia,
+        'Cs': Cs,
+        'Sn_prime': Sn_prime,
+        'SF': SF
+    }
+
 def save_results(results, name):
     """
     Saves the simulation results to several
@@ -421,7 +551,19 @@ def save_results(results, name):
 
     ## Write report
     with open(f"results_{name}/report_{name}.txt", "w") as file:
+        file.write("------------------\nPrincipal Stresses\n------------------\n\n")
+
         for i, sigma_1i in enumerate(sigma_1):
             avg_sigma_1i = np.mean(sigma_1i)*10**-6
             max_sigma_1i = np.max(sigma_1i)*10**-6
             file.write(f"Point {i+1}:\n  mean stress = {avg_sigma_1i:.3f} MPa,\n  max stress = {max_sigma_1i:.3f} Mpa\n")
+
+        file.write("\n---------------\nEndurance Limit\n---------------\n\n")
+
+        sn_results = results['sf_results']
+
+        file.write(f"I: {sn_results['I']}\n")
+        file.write(f"D: {sn_results['D']}\n")
+        file.write(f"Cs: {sn_results['Cs']}\n")
+        file.write(f"Sn_prime: {sn_results['Sn_prime']}\n")
+        file.write(f"SF: {sn_results['SF']}")
